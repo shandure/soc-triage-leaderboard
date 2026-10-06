@@ -4,168 +4,288 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SOC Alert Triage Benchmark</title>
+<meta name="description" content="How well AI models triage security alerts, measured against expert reference decisions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root { --bg: #ffffff; --fg: #1a1a1a; --muted: #666; --line: #ddd; --accent: #b23a3a; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg: #121212; --fg: #e8e8e8; --muted: #9a9a9a; --line: #333; --accent: #e57373; }
+  :root {
+    --paper: #F2F4F7;
+    --ink: #15213B;
+    --steel: #5B6B82;
+    --rule: #D4DAE3;
+    --row: #FFFFFF;
+    --miss: #B42318;
+    --miss-track: #E9D5D2;
+    --accent: #B7791F;
+    --accent-ink: #FFFFFF;
+    --measure: 68ch;
   }
-  body { margin: 0; padding: 24px 16px; background: var(--bg); color: var(--fg);
-         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  main { max-width: 1100px; margin: 0 auto; }
-  h1 { font-size: 1.6rem; margin: 0 0 4px; }
-  p.sub { color: var(--muted); margin: 0 0 20px; }
-  .note { border-left: 3px solid var(--accent); padding: 8px 12px; margin: 0 0 20px; color: var(--muted); }
-  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
-  th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
-  th:first-child, td:first-child { text-align: left; }
-  th { color: var(--muted); font-weight: 600; font-size: 0.85rem; }
-  .wrap { overflow-x: auto; }
-  .miss { color: var(--accent); font-weight: 600; }
-  footer { margin-top: 24px; color: var(--muted); font-size: 0.85rem; }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0F1724;
+      --ink: #E6EAF0;
+      --steel: #9AA7B8;
+      --rule: #273349;
+      --row: #162035;
+      --miss: #F08A7E;
+      --miss-track: #3A2320;
+      --accent: #D9A441;
+      --accent-ink: #0F1724;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { font-size: 17px; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-feature-settings: "tnum" 1;
+    line-height: 1.5;
+  }
+  main { max-width: 1040px; margin: 0 auto; padding: 48px 16px 64px; }
+  h1 { font-size: 2.1rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; margin: 0 0 12px; }
+  h2 { font-size: 1.25rem; font-weight: 600; margin: 48px 0 12px; }
+  p { max-width: var(--measure); margin: 0 0 12px; }
+  .lede { color: var(--steel); font-size: 1.1rem; margin-bottom: 36px; }
+  .facts { color: var(--steel); font-size: 0.95rem; margin-bottom: 20px; }
+  .facts span + span::before { content: ""; display: inline-block; width: 1px; height: 0.9em; background: var(--rule); margin: 0 12px -1px; }
+  .notice { border-left: 3px solid var(--accent); padding: 8px 14px; margin: 0 0 20px; color: var(--steel); max-width: var(--measure); }
+
+  .board { overflow-x: auto; margin: 0 -16px; padding: 0 16px; }
+  table { border-collapse: collapse; width: 100%; min-width: 820px; }
+  thead th {
+    text-align: left; font-weight: 500; color: var(--steel); font-size: 0.9rem;
+    padding: 0 12px 10px; border-bottom: 1px solid var(--rule); white-space: nowrap;
+  }
+  thead th.num, tbody td.num { text-align: right; }
+  tbody tr { background: var(--row); }
+  tbody tr + tr td { border-top: 1px solid var(--rule); }
+  td { padding: 14px 12px; vertical-align: middle; white-space: nowrap; }
+  td.model { font-weight: 600; }
+  td.model small { display: block; font-weight: 400; color: var(--steel); font-size: 0.85rem; }
+  td.miss { min-width: 260px; }
+  .bar { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+  .track { height: 10px; background: var(--miss-track); border-radius: 5px; overflow: hidden; }
+  .fill { height: 100%; background: var(--miss); border-radius: 5px; }
+  .bar .val { color: var(--miss); font-weight: 600; min-width: 7.5ch; text-align: right; }
+  .bar .val.zero { color: var(--steel); font-weight: 500; }
+  td.ci { color: var(--steel); }
+
+  .cta {
+    margin-top: 48px; padding: 24px; background: var(--row); border: 1px solid var(--rule);
+    display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center;
+  }
+  .cta p { margin: 0; }
+  .cta a.button {
+    display: inline-block; background: var(--accent); color: var(--accent-ink);
+    padding: 12px 20px; font-weight: 600; text-decoration: none; white-space: nowrap;
+  }
+  .cta a.button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  @media (max-width: 640px) {
+    html { font-size: 16px; }
+    h1 { font-size: 1.7rem; }
+    .cta { grid-template-columns: 1fr; }
+  }
+  a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--rule); color: var(--steel); font-size: 0.9rem; }
+  footer p { margin-bottom: 8px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .fill { transition: width 400ms ease-out; }
+  }
 </style>
 </head>
 <body>
 <main>
   <h1>SOC Alert Triage Benchmark</h1>
-  <p class="sub">How well AI models triage security alerts. Sorted by critical miss rate: the share of malicious alerts a model dismissed or under-rated. Lower is better.</p>
+  <p class="lede">How well AI models triage security alerts, measured against expert reference decisions.</p>
+
+  <p class="facts">
+    <span>8 models</span>
+    <span>20 expert-reviewed examples</span>
+    <span>Dataset 0.1-seed</span>
+    <span>Updated 2026-10-06</span>
+  </p>
+
   
-  <div class="wrap">
+
+  <div class="board">
   <table>
     <thead>
       <tr>
         <th>Model</th>
-        <th>Provider</th>
-        <th>Critical miss</th>
-        <th>False alarm</th>
-        <th>Score</th>
-        <th>95% CI</th>
-        <th>Parse failures</th>
-        <th>n</th>
-        <th>Judge</th>
-        <th>Dataset</th>
-        <th>Run date</th>
+        <th>Critical miss rate</th>
+        <th class="num">False alarms</th>
+        <th class="num">Score</th>
+        <th class="num">95% interval</th>
+        <th class="num">Parse failures</th>
+        <th class="num">Run</th>
       </tr>
     </thead>
     <tbody>
     
       <tr>
-        <td>gpt-6.1-sol</td>
-        <td>openai</td>
-        <td class="miss">0% (0/11)</td>
-        <td>0% (0/5)</td>
-        <td>0.913</td>
-        <td>0.839 to 0.963</td>
-        <td>0%</td>
-        <td>20</td>
-        <td>yes</td>
-        <td>0.1-seed</td>
-        <td>2026-10-06</td>
+        <td class="model">gpt-6.1-sol<small>openai, effort medium</small></td>
+        <td class="miss">
+          
+          <div class="bar">
+            <div class="track" role="img" aria-label="critical miss rate 0%"><div class="fill" style="width: 0.0%"></div></div>
+            <span class="val zero">0% <span style="font-weight:400">(0/11)</span></span>
+          </div>
+          
+        </td>
+        <td class="num">0% (0/5)</td>
+        <td class="num">0.913</td>
+        <td class="num ci">0.839 to 0.963</td>
+        <td class="num">0%</td>
+        <td class="num ci">2026-10-06</td>
       </tr>
     
       <tr>
-        <td>gpt-6-astra</td>
-        <td>openai</td>
-        <td class="miss">0% (0/11)</td>
-        <td>0% (0/5)</td>
-        <td>0.908</td>
-        <td>0.833 to 0.958</td>
-        <td>0%</td>
-        <td>20</td>
-        <td>yes</td>
-        <td>0.1-seed</td>
-        <td>2026-10-06</td>
+        <td class="model">gpt-6-astra<small>openai, effort medium</small></td>
+        <td class="miss">
+          
+          <div class="bar">
+            <div class="track" role="img" aria-label="critical miss rate 0%"><div class="fill" style="width: 0.0%"></div></div>
+            <span class="val zero">0% <span style="font-weight:400">(0/11)</span></span>
+          </div>
+          
+        </td>
+        <td class="num">0% (0/5)</td>
+        <td class="num">0.908</td>
+        <td class="num ci">0.833 to 0.958</td>
+        <td class="num">0%</td>
+        <td class="num ci">2026-10-06</td>
       </tr>
     
       <tr>
-        <td>claude-sonnet-5-5</td>
-        <td>anthropic</td>
-        <td class="miss">0% (0/11)</td>
-        <td>0% (0/5)</td>
-        <td>0.885</td>
-        <td>0.818 to 0.938</td>
-        <td>0%</td>
-        <td>20</td>
-        <td>yes</td>
-        <td>0.1-seed</td>
-        <td>2026-10-06</td>
+        <td class="model">claude-sonnet-5-5<small>anthropic, effort medium</small></td>
+        <td class="miss">
+          
+          <div class="bar">
+            <div class="track" role="img" aria-label="critical miss rate 0%"><div class="fill" style="width: 0.0%"></div></div>
+            <span class="val zero">0% <span style="font-weight:400">(0/11)</span></span>
+          </div>
+          
+        </td>
+        <td class="num">0% (0/5)</td>
+        <td class="num">0.885</td>
+        <td class="num ci">0.818 to 0.938</td>
+        <td class="num">0%</td>
+        <td class="num ci">2026-10-06</td>
       </tr>
     
       <tr>
-        <td>claude-opus-5-5</td>
-        <td>anthropic</td>
-        <td class="miss">0% (0/11)</td>
-        <td>0% (0/5)</td>
-        <td>0.884</td>
-        <td>0.807 to 0.936</td>
-        <td>0%</td>
-        <td>20</td>
-        <td>yes</td>
-        <td>0.1-seed</td>
-        <td>2026-10-06</td>
+        <td class="model">claude-opus-5-5<small>anthropic, effort medium</small></td>
+        <td class="miss">
+          
+          <div class="bar">
+            <div class="track" role="img" aria-label="critical miss rate 0%"><div class="fill" style="width: 0.0%"></div></div>
+            <span class="val zero">0% <span style="font-weight:400">(0/11)</span></span>
+          </div>
+          
+        </td>
+        <td class="num">0% (0/5)</td>
+        <td class="num">0.884</td>
+        <td class="num ci">0.807 to 0.936</td>
+        <td class="num">0%</td>
+        <td class="num ci">2026-10-06</td>
       </tr>
     
       <tr>
-        <td>deepseek-flash</td>
-        <td>openai_compatible</td>
-        <td class="miss">0% (0/11)</td>
-        <td>0% (0/5)</td>
-        <td>0.863</td>
-        <td>0.786 to 0.923</td>
-        <td>0%</td>
-        <td>20</td>
-        <td>yes</td>
-        <td>0.1-seed</td>
-        <td>2026-10-06</td>
+        <td class="model">deepseek-flash<small>openai_compatible, effort medium</small></td>
+        <td class="miss">
+          
+          <div class="bar">
+            <div class="track" role="img" aria-label="critical miss rate 0%"><div class="fill" style="width: 0.0%"></div></div>
+            <span class="val zero">0% <span style="font-weight:400">(0/11)</span></span>
+          </div>
+          
+        </td>
+        <td class="num">0% (0/5)</td>
+        <td class="num">0.863</td>
+        <td class="num ci">0.786 to 0.923</td>
+        <td class="num">0%</td>
+        <td class="num ci">2026-10-06</td>
       </tr>
     
       <tr>
-        <td>deepseek-v4-pro</td>
-        <td>openai_compatible</td>
-        <td class="miss">0% (0/11)</td>
-        <td>0% (0/5)</td>
-        <td>0.849</td>
-        <td>0.800 to 0.894</td>
-        <td>0%</td>
-        <td>20</td>
-        <td>yes</td>
-        <td>0.1-seed</td>
-        <td>2026-10-06</td>
+        <td class="model">deepseek-v4-pro<small>openai_compatible, effort medium</small></td>
+        <td class="miss">
+          
+          <div class="bar">
+            <div class="track" role="img" aria-label="critical miss rate 0%"><div class="fill" style="width: 0.0%"></div></div>
+            <span class="val zero">0% <span style="font-weight:400">(0/11)</span></span>
+          </div>
+          
+        </td>
+        <td class="num">0% (0/5)</td>
+        <td class="num">0.849</td>
+        <td class="num ci">0.800 to 0.894</td>
+        <td class="num">0%</td>
+        <td class="num ci">2026-10-06</td>
       </tr>
     
       <tr>
-        <td>gemini-3.1-pro</td>
-        <td>google</td>
-        <td class="miss">0% (0/11)</td>
-        <td>0% (0/5)</td>
-        <td>0.843</td>
-        <td>0.771 to 0.899</td>
-        <td>0%</td>
-        <td>20</td>
-        <td>yes</td>
-        <td>0.1-seed</td>
-        <td>2026-10-06</td>
+        <td class="model">gemini-3.1-pro<small>google, effort medium</small></td>
+        <td class="miss">
+          
+          <div class="bar">
+            <div class="track" role="img" aria-label="critical miss rate 0%"><div class="fill" style="width: 0.0%"></div></div>
+            <span class="val zero">0% <span style="font-weight:400">(0/11)</span></span>
+          </div>
+          
+        </td>
+        <td class="num">0% (0/5)</td>
+        <td class="num">0.843</td>
+        <td class="num ci">0.771 to 0.899</td>
+        <td class="num">0%</td>
+        <td class="num ci">2026-10-06</td>
       </tr>
     
       <tr>
-        <td>gemini-3.8-flash</td>
-        <td>google</td>
-        <td class="miss">0% (0/11)</td>
-        <td>0% (0/5)</td>
-        <td>0.830</td>
-        <td>0.759 to 0.886</td>
-        <td>0%</td>
-        <td>20</td>
-        <td>yes</td>
-        <td>0.1-seed</td>
-        <td>2026-10-06</td>
+        <td class="model">gemini-3.8-flash<small>google, effort medium</small></td>
+        <td class="miss">
+          
+          <div class="bar">
+            <div class="track" role="img" aria-label="critical miss rate 0%"><div class="fill" style="width: 0.0%"></div></div>
+            <span class="val zero">0% <span style="font-weight:400">(0/11)</span></span>
+          </div>
+          
+        </td>
+        <td class="num">0% (0/5)</td>
+        <td class="num">0.830</td>
+        <td class="num ci">0.759 to 0.886</td>
+        <td class="num">0%</td>
+        <td class="num ci">2026-10-06</td>
       </tr>
     
     </tbody>
   </table>
   </div>
+
+  <h2>How to read this</h2>
+  <p><strong>Critical miss rate</strong> is the share of genuinely malicious alerts a model dismissed as benign or a false positive, or rated informational or low. This is the number that matters most. A missed intrusion is the failure a SOC exists to prevent, so the table is sorted by it and a zero here means the model let nothing through on this set.</p>
+  <p><strong>False alarms</strong> are false-positive alerts the model escalated as high or critical. They measure the opposite failure: a tool that cries wolf gets ignored.</p>
+  <p><strong>Score</strong> combines verdict, severity, recommended action and the quality of the written rationale, weighted 40, 20, 25 and 15 percent, against an expert's reference decision. The interval is a 95 percent bootstrap over examples; where intervals overlap, the ordering is not meaningful.</p>
+
+  <div class="cta">
+    <div>
+      <p><strong>Build an AI triage product?</strong></p>
+      <p>Have it scored against the private held-out set and receive a full report with breakdowns by category, alert source and trap type.</p>
+    </div>
+    <a class="button" href="mailto:contact@example.com?subject=Benchmark%20evaluation">Get your product scored</a>
+  </div>
+
   <footer>
-    Generated 2026-10-06 19:08 UTC. Aggregate numbers only; no example content is published here.
-    MITRE ATT&amp;CK technique references are used under the MITRE ATT&amp;CK licence.
+    <p>Every example is synthetic. Alerts, hosts, people and indicators are invented and use reserved address ranges and example domains. Reference decisions were written or reviewed by a security practitioner. Rationales are scored by an LLM judge that sees only the reference evidence and the rationale.</p>
+    <p>
+      
+      
+      
+      Maintained by The benchmark maintainer. Public sample licensed CC BY-NC 4.0. MITRE ATT&amp;CK technique references are used under the MITRE ATT&amp;CK licence.
+    </p>
   </footer>
 </main>
 </body>
