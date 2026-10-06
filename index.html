@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SOC Alert Triage Benchmark</title>
+<style>
+  :root { --bg: #ffffff; --fg: #1a1a1a; --muted: #666; --line: #ddd; --accent: #b23a3a; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #121212; --fg: #e8e8e8; --muted: #9a9a9a; --line: #333; --accent: #e57373; }
+  }
+  body { margin: 0; padding: 24px 16px; background: var(--bg); color: var(--fg);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  p.sub { color: var(--muted); margin: 0 0 20px; }
+  .note { border-left: 3px solid var(--accent); padding: 8px 12px; margin: 0 0 20px; color: var(--muted); }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--muted); font-weight: 600; font-size: 0.85rem; }
+  .wrap { overflow-x: auto; }
+  .miss { color: var(--accent); font-weight: 600; }
+  footer { margin-top: 24px; color: var(--muted); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>SOC Alert Triage Benchmark</h1>
+  <p class="sub">How well AI models triage security alerts. Sorted by critical miss rate: the share of malicious alerts a model dismissed or under-rated. Lower is better.</p>
+  
+  <div class="wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th>Provider</th>
+        <th>Critical miss</th>
+        <th>False alarm</th>
+        <th>Score</th>
+        <th>95% CI</th>
+        <th>Parse failures</th>
+        <th>n</th>
+        <th>Judge</th>
+        <th>Dataset</th>
+        <th>Run date</th>
+      </tr>
+    </thead>
+    <tbody>
+    
+      <tr>
+        <td>gpt-6.1-sol</td>
+        <td>openai</td>
+        <td class="miss">0% (0/11)</td>
+        <td>0% (0/5)</td>
+        <td>0.913</td>
+        <td>0.839 to 0.963</td>
+        <td>0%</td>
+        <td>20</td>
+        <td>yes</td>
+        <td>0.1-seed</td>
+        <td>2026-10-06</td>
+      </tr>
+    
+      <tr>
+        <td>gpt-6-astra</td>
+        <td>openai</td>
+        <td class="miss">0% (0/11)</td>
+        <td>0% (0/5)</td>
+        <td>0.908</td>
+        <td>0.833 to 0.958</td>
+        <td>0%</td>
+        <td>20</td>
+        <td>yes</td>
+        <td>0.1-seed</td>
+        <td>2026-10-06</td>
+      </tr>
+    
+      <tr>
+        <td>claude-sonnet-5-5</td>
+        <td>anthropic</td>
+        <td class="miss">0% (0/11)</td>
+        <td>0% (0/5)</td>
+        <td>0.885</td>
+        <td>0.818 to 0.938</td>
+        <td>0%</td>
+        <td>20</td>
+        <td>yes</td>
+        <td>0.1-seed</td>
+        <td>2026-10-06</td>
+      </tr>
+    
+      <tr>
+        <td>claude-opus-5-5</td>
+        <td>anthropic</td>
+        <td class="miss">0% (0/11)</td>
+        <td>0% (0/5)</td>
+        <td>0.884</td>
+        <td>0.807 to 0.936</td>
+        <td>0%</td>
+        <td>20</td>
+        <td>yes</td>
+        <td>0.1-seed</td>
+        <td>2026-10-06</td>
+      </tr>
+    
+      <tr>
+        <td>deepseek-flash</td>
+        <td>openai_compatible</td>
+        <td class="miss">0% (0/11)</td>
+        <td>0% (0/5)</td>
+        <td>0.863</td>
+        <td>0.786 to 0.923</td>
+        <td>0%</td>
+        <td>20</td>
+        <td>yes</td>
+        <td>0.1-seed</td>
+        <td>2026-10-06</td>
+      </tr>
+    
+      <tr>
+        <td>deepseek-v4-pro</td>
+        <td>openai_compatible</td>
+        <td class="miss">0% (0/11)</td>
+        <td>0% (0/5)</td>
+        <td>0.849</td>
+        <td>0.800 to 0.894</td>
+        <td>0%</td>
+        <td>20</td>
+        <td>yes</td>
+        <td>0.1-seed</td>
+        <td>2026-10-06</td>
+      </tr>
+    
+      <tr>
+        <td>gemini-3.1-pro</td>
+        <td>google</td>
+        <td class="miss">0% (0/11)</td>
+        <td>0% (0/5)</td>
+        <td>0.843</td>
+        <td>0.771 to 0.899</td>
+        <td>0%</td>
+        <td>20</td>
+        <td>yes</td>
+        <td>0.1-seed</td>
+        <td>2026-10-06</td>
+      </tr>
+    
+      <tr>
+        <td>gemini-3.8-flash</td>
+        <td>google</td>
+        <td class="miss">0% (0/11)</td>
+        <td>0% (0/5)</td>
+        <td>0.830</td>
+        <td>0.759 to 0.886</td>
+        <td>0%</td>
+        <td>20</td>
+        <td>yes</td>
+        <td>0.1-seed</td>
+        <td>2026-10-06</td>
+      </tr>
+    
+    </tbody>
+  </table>
+  </div>
+  <footer>
+    Generated 2026-10-06 19:08 UTC. Aggregate numbers only; no example content is published here.
+    MITRE ATT&amp;CK technique references are used under the MITRE ATT&amp;CK licence.
+  </footer>
+</main>
+</body>
+</html>
