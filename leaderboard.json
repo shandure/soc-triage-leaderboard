@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-06T23:49:45.855014+00:00",
+  "generated_at": "2026-10-07T00:53:44.401706+00:00",
   "sort": "critical_miss_rate asc, mean_score desc",
   "rows": [
     {
@@ -8,9 +8,9 @@
       "tier": "flagship",
       "effort": "medium",
       "n": 68,
-      "mean_score": 0.9392279411764706,
-      "ci_low": 0.9230147058823529,
-      "ci_high": 0.954266544117647,
+      "mean_score": 0.9376654411764707,
+      "ci_low": 0.9209503676470587,
+      "ci_high": 0.9524278492647056,
       "critical_miss_rate": 0.0,
       "critical_misses": 0,
       "critical_miss_denominator": 31,
@@ -22,7 +22,8 @@
       "dataset_version": "0.3-seed",
       "split": "all",
       "run_id": "20261006T233628Z",
-      "run_date": "2026-10-06"
+      "run_date": "2026-10-06",
+      "cost_per_1k_alerts_usd": 17.196058823529413
     },
     {
       "model_name": "gpt-6.1-sol",
@@ -30,9 +31,9 @@
       "tier": "mid",
       "effort": "medium",
       "n": 68,
-      "mean_score": 0.9256617647058824,
-      "ci_low": 0.908966911764706,
-      "ci_high": 0.9424264705882354,
+      "mean_score": 0.9251838235294118,
+      "ci_low": 0.9085234375000001,
+      "ci_high": 0.9413092830882354,
       "critical_miss_rate": 0.0,
       "critical_misses": 0,
       "critical_miss_denominator": 31,
@@ -44,7 +45,8 @@
       "dataset_version": "0.3-seed",
       "split": "all",
       "run_id": "20261006T233628Z",
-      "run_date": "2026-10-06"
+      "run_date": "2026-10-06",
+      "cost_per_1k_alerts_usd": 4.615647058823529
     },
     {
       "model_name": "gpt-6-astra",
@@ -52,9 +54,9 @@
       "tier": "flagship",
       "effort": "medium",
       "n": 68,
-      "mean_score": 0.9252205882352941,
-      "ci_low": 0.9066911764705884,
-      "ci_high": 0.9418023897058825,
+      "mean_score": 0.923327205882353,
+      "ci_low": 0.9050340073529413,
+      "ci_high": 0.939913143382353,
       "critical_miss_rate": 0.0,
       "critical_misses": 0,
       "critical_miss_denominator": 31,
@@ -66,7 +68,8 @@
       "dataset_version": "0.3-seed",
       "split": "all",
       "run_id": "20261006T233628Z",
-      "run_date": "2026-10-06"
+      "run_date": "2026-10-06",
+      "cost_per_1k_alerts_usd": 22.986323529411763
     },
     {
       "model_name": "claude-sonnet-5-5",
@@ -74,9 +77,9 @@
       "tier": "mid",
       "effort": "medium",
       "n": 68,
-      "mean_score": 0.9058088235294117,
-      "ci_low": 0.8735560661764706,
-      "ci_high": 0.9331985294117646,
+      "mean_score": 0.9045404411764706,
+      "ci_low": 0.8734113051470589,
+      "ci_high": 0.9315997242647058,
       "critical_miss_rate": 0.0,
       "critical_misses": 0,
       "critical_miss_denominator": 31,
@@ -88,7 +91,8 @@
       "dataset_version": "0.3-seed",
       "split": "all",
       "run_id": "20261006T233628Z",
-      "run_date": "2026-10-06"
+      "run_date": "2026-10-06",
+      "cost_per_1k_alerts_usd": 7.871852941176471
     },
     {
       "model_name": "deepseek-flash",
@@ -96,9 +100,9 @@
       "tier": "mid",
       "effort": "medium",
       "n": 68,
-      "mean_score": 0.8791911764705883,
-      "ci_low": 0.8342270220588235,
-      "ci_high": 0.9197794117647059,
+      "mean_score": 0.8775367647058824,
+      "ci_low": 0.8325165441176471,
+      "ci_high": 0.9180919117647058,
       "critical_miss_rate": 0.0,
       "critical_misses": 0,
       "critical_miss_denominator": 31,
@@ -110,7 +114,8 @@
       "dataset_version": "0.3-seed",
       "split": "all",
       "run_id": "20261006T233628Z",
-      "run_date": "2026-10-06"
+      "run_date": "2026-10-06",
+      "cost_per_1k_alerts_usd": 1.385360294117647
     },
     {
       "model_name": "gemini-3.8-flash",
@@ -118,9 +123,9 @@
       "tier": "mid",
       "effort": "medium",
       "n": 68,
-      "mean_score": 0.8767279411764706,
-      "ci_low": 0.8560284926470588,
-      "ci_high": 0.8965818014705884,
+      "mean_score": 0.875716911764706,
+      "ci_low": 0.8548690257352942,
+      "ci_high": 0.895460018382353,
       "critical_miss_rate": 0.0,
       "critical_misses": 0,
       "critical_miss_denominator": 31,
@@ -132,7 +137,8 @@
       "dataset_version": "0.3-seed",
       "split": "all",
       "run_id": "20261006T233628Z",
-      "run_date": "2026-10-06"
+      "run_date": "2026-10-06",
+      "cost_per_1k_alerts_usd": 3.4771213235294116
     },
     {
       "model_name": "deepseek-v4-pro",
@@ -140,9 +146,9 @@
       "tier": "flagship",
       "effort": "medium",
       "n": 68,
-      "mean_score": 0.8741911764705882,
-      "ci_low": 0.8494044117647058,
-      "ci_high": 0.8978308823529411,
+      "mean_score": 0.8739338235294118,
+      "ci_low": 0.8485965073529412,
+      "ci_high": 0.8974843750000002,
       "critical_miss_rate": 0.0,
       "critical_misses": 0,
       "critical_miss_denominator": 31,
@@ -154,7 +160,8 @@
       "dataset_version": "0.3-seed",
       "split": "all",
       "run_id": "20261006T233628Z",
-      "run_date": "2026-10-06"
+      "run_date": "2026-10-06",
+      "cost_per_1k_alerts_usd": 7.1054241176470585
     },
     {
       "model_name": "gemini-3.1-pro",
@@ -162,9 +169,9 @@
       "tier": "flagship",
       "effort": "medium",
       "n": 68,
-      "mean_score": 0.8393014705882353,
-      "ci_low": 0.8113170955882353,
-      "ci_high": 0.8643400735294119,
+      "mean_score": 0.8391544117647058,
+      "ci_low": 0.8100165441176472,
+      "ci_high": 0.8648382352941176,
       "critical_miss_rate": 0.0,
       "critical_misses": 0,
       "critical_miss_denominator": 31,
@@ -176,7 +183,8 @@
       "dataset_version": "0.3-seed",
       "split": "all",
       "run_id": "20261006T233628Z",
-      "run_date": "2026-10-06"
+      "run_date": "2026-10-06",
+      "cost_per_1k_alerts_usd": 8.935676470588236
     }
   ]
 }
